@@ -133,8 +133,8 @@ def cnn_test(args, bers, model):
     dir = './data/' + args.channel + '/'
     if not os.path.exists(dir):
         os.mkdir(dir)
-    np.savez(dir + args.curve + '_' + str(args.modem_num) + '_' + str(args.qua_bits), snr=SNR, ber=np.array(BER))
-    print("%s.npz is saved" % (dir + args.curve + '_' + str(args.modem_num) + '_' + str(args.qua_bits)))
+    np.savez(dir + args.curve + '_' + str(args.modem_num), snr=SNR, ber=np.array(BER))
+    print("%s.npz is saved" % (dir + args.curve + '_' + str(args.modem_num)))
 
 
 if __name__ == '__main__':
