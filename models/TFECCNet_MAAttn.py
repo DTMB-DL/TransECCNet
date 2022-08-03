@@ -168,9 +168,7 @@ class Decoder(nn.Module):
         self.K = K
         self.decoder = Transformer(dim=N * G, depth=4, heads=8, dim_head=N * G, mlp_dim=N * G * 2, dropout=0.1)
         self.timedis2 = nn.Sequential(
-            nn.ReLU(),
             TimeDistributed(nn.Linear(G * K, 2), batch_first=True),
-            nn.BatchNorm1d(N),
         )
 
     def forward(self, R):

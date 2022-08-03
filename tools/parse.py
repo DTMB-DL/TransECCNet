@@ -19,8 +19,8 @@ def get_args():
 
     '''=========================== training opt =============================='''
     parser.add_argument('-unit_T', type=int, default=1, help='increasing number of T for each epoch')
-    parser.add_argument('-lr', type=float, default=1e-4, help='init learning rate')
-    parser.add_argument('-qua_bits', type=int, default=1, help='quantization bits for Network')
+    parser.add_argument('-lr', type=float, default=5e-4, help='init learning rate')
+    parser.add_argument('-qua_bits', type=int, default=3, help='quantization bits for Network')
 
     parser.add_argument('-snr', type=float, default=40.0, help='E_b/n_0 for training.')
     parser.add_argument('-snr_start', type=float, default=0.0, help='start value of Eb/n0 for testing')
@@ -30,9 +30,9 @@ def get_args():
     '''=========================== choose main opt =============================='''
     parser.add_argument('-curve',
                         choices=['OFDM_LS', 'OFDM_MMSE', 'TFECCNet_MAAttn', 'TFECCNet_ResAttn', 'TFECCNet_BiAttn',
-                                 'ECCNet_MAAttn', 'ECCNet_ResAttn', 'ECCNet_BiAttn'], default='OFDM_LS',
+                                 'ECCNet_MAAttn', 'ECCNet_ResAttn', 'ECCNet_BiAttn'], default='TFECCNet_MAAttn',
                         help='for main')
-    parser.add_argument('-channel', choices=['flat', 'channelA', 'channelB'], default='channelA', help='channel type')
+    parser.add_argument('-channel', choices=['flat', 'channelA', 'channelB'], default='channelB', help='channel type')
     parser.add_argument('-model_path', type=str, default='./data/flat/TFECCNet_MAAttn_16_1.pth',
                         help='model path for test')
 

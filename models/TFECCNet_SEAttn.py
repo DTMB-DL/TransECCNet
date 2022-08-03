@@ -27,6 +27,81 @@ class TimeDistributed(nn.Module):
         return y
 
 
+class PreNorm(nn.Module):
+    def __init__(self, dim, fn):
+        super().__init__()
+        self.norm = nn.LayerNorm(dim)
+        self.fn = fn
+
+    def forward(self, x, **kwargs):
+        return self.fn(self.norm(x), **kwargs)
+
+
+class FeedForward(nn.Module):
+    def __init__(self, dim, hidden_dim, dropout=0.):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class Attention(nn.Module):
+    def __init__(self, dim, heads=8, dim_head=64, dropout=0.):
+        super().__init__()
+        inner_dim = dim_head * heads
+        project_out = not (heads == 1 and dim_head == dim)
+
+        self.heads = heads
+        self.scale = dim_head ** -0.5
+
+        self.attend = nn.Softmax(dim=-1)
+        self.dropout = nn.Dropout(dropout)
+
+        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
+
+        self.to_out = nn.Sequential(
+            nn.Linear(inner_dim, dim),
+            nn.Dropout(dropout)
+        ) if project_out else nn.Identity()
+
+    def forward(self, x):
+        qkv = self.to_qkv(x).chunk(3, dim = -1)
+        q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h=self.heads), qkv)
+
+        dots = torch.matmul(q, k.transpose(-1, -2)) * self.scale
+
+        attn = self.attend(dots)
+        attn = self.dropout(attn)
+
+        out = torch.matmul(attn, v)
+        out = rearrange(out, 'b h n d -> b n (h d)')
+        return self.to_out(out)
+
+
+class Transformer(nn.Module):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout=0.):
+        super().__init__()
+        self.layers = nn.ModuleList([])
+        for _ in range(depth):
+            self.layers.append(nn.ModuleList([
+                PreNorm(dim, Attention(dim, heads=heads, dim_head=dim_head, dropout=dropout)),
+                PreNorm(dim, FeedForward(dim, mlp_dim, dropout=dropout))
+            ]))
+
+    def forward(self, x):
+        for attn, ff in self.layers:
+            x = attn(x) + x
+            x = ff(x) + x
+        return x
+
+
 class SE(nn.Module):
     def __init__(self, Cin):
         super(SE, self).__init__()
@@ -49,64 +124,29 @@ class SE(nn.Module):
         return self.forward(x)
 
 
-class ResSEBlock(nn.Module):
-    def __init__(self, Cin, Cout, rate=1):
-        super(ResSEBlock, self).__init__()
-        if Cin != Cout:
-            self.shortcut = nn.Sequential(
-                nn.BatchNorm1d(Cin),
-                nn.ReLU(),
-                nn.Conv1d(Cin, Cout, 1)
-            )
-        else:
-            self.shortcut = nn.Identity()
+class PreAttn(nn.Module):
+    def __init__(self, K):
+        super(PreAttn, self).__init__()
         self.conv = nn.Sequential(
-            nn.BatchNorm1d(Cin),
+            nn.BatchNorm1d(2),
             nn.ReLU(),
-            nn.Conv1d(Cin, Cout, 2 * rate + 1, stride=1, padding=rate),
-            nn.BatchNorm1d(Cout),
+            nn.Conv1d(2, K, 1),
+            nn.BatchNorm1d(K),
             nn.ReLU(),
-            nn.Conv1d(Cout, Cout, 2 * rate + 1, stride=1, padding=rate),
+            nn.Conv1d(K, K, 1),
         )
-        self.se = SE(Cout)
+        self.shortcut = nn.Sequential(
+            nn.BatchNorm1d(2),
+            nn.ReLU(),
+            nn.Conv1d(2, K, 1)
+        )
+        self.attention = SE(K)
 
     def forward(self, x):
-        x_shortcut = self.shortcut(x)
-        x_res = self.se(self.conv(x))  # with SE
-        out = x_shortcut + x_res
-        return out
-
-    def __call__(self, x):
-        return self.forward(x)
-
-
-class PreAttn(nn.Module):
-    def __init__(self, N, G, K):
-        super(PreAttn, self).__init__()
-        self.extractor = nn.Sequential(
-            nn.Conv1d(2, 256, 5, stride=1, padding=2),
-            nn.BatchNorm1d(256),
-            nn.ReLU(),
-            nn.Conv1d(256, 128, 3, stride=1, padding=1),
-            nn.BatchNorm1d(128),
-            nn.ReLU(),
-            nn.Conv1d(128, 64, 3, stride=1, padding=1),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Conv1d(64, 2, 3, stride=1, padding=1),
-            nn.BatchNorm1d(2),
-        )
-        self.fc = nn.Sequential(
-            nn.Linear(2 * N * G, K*2),
-            nn.ReLU(),
-            nn.Linear(K*2, K),
-        )
-
-    def forward(self, r):
-        z1 = self.extractor(r)
-        z2 = self.fc(z1.view(r.shape[0], -1))
-        R = torch.einsum("bcl,bz->bczl", r, z2).view(r.shape[0], -1, r.shape[-1])
-        return R
+        out1 = self.conv(x)
+        out2 = self.attention(out1)
+        out3 = self.shortcut(x)
+        return out2+out3
 
 
 class Encoder(nn.Module):
@@ -148,26 +188,13 @@ class Decoder(nn.Module):
         self.N = N
         self.G = G
         self.K = K
-        self.decoder = nn.Sequential(
-            nn.Conv1d(2*K, 256, 5, stride=1, padding=2),
-            nn.BatchNorm1d(256),
-            nn.ReLU(),
-            ResSEBlock(256, 128, 10),
-            ResSEBlock(128, 128, 5),
-            ResSEBlock(128, 64, 3),
-            ResSEBlock(64, 64, 2),
-            ResSEBlock(64, 32, 2),
-            ResSEBlock(32, 32, 1),
-            nn.Conv1d(32, 20, 5, stride=1, padding=2),
-            nn.BatchNorm1d(20),
-            nn.ReLU(),
-        )
+        self.decoder = Transformer(dim=N * G, depth=4, heads=8, dim_head=N * G, mlp_dim=N * G * 2, dropout=0.1)
         self.timedis2 = nn.Sequential(
-            TimeDistributed(nn.Linear(20 * G, 2), batch_first=True),
+            TimeDistributed(nn.Linear(G * K, 2), batch_first=True),
         )
 
     def forward(self, R):
-        out = self.decoder(R).reshape(R.shape[0], self.G * 20, -1).transpose(1, 2).contiguous()
+        out = self.decoder(R).reshape(R.shape[0], self.G * self.K, -1).transpose(1, 2).contiguous()
         out = self.timedis2(out).reshape(R.shape[0], 2, -1)
         return out
 
@@ -178,8 +205,8 @@ class Net(nn.Module):
         self.G = G
         self.modem_num = modem_num
         self.encoder = Encoder(N, G)
-        self.decoder = Decoder(N, G, K//2)
-        self.preattn = PreAttn(N, G, K//2)
+        self.decoder = Decoder(N, G, K)
+        self.preattn = PreAttn(K)
         self.quantization = Quantization(qua_bits)
 
         for m in self.modules():

@@ -32,11 +32,11 @@ def train(args):
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-    for idx in range(50):
-        ac_T = idx * args.unit_T
+    for idx in range(500):
+        ac_T = (idx + 1) * args.unit_T // 10 + 1
         net.train()
         loss_train = []
-        for each_batch in range(300):
+        for each_batch in range(30):
             train_data = generate_16QAM(args.batch_size)
             s = train_data.reshape(args.batch_size, 2, -1)
             optimizer.zero_grad()
@@ -49,7 +49,7 @@ def train(args):
             optimizer.step()
             loss_train.append(MSE_loss.item())
         loss_train = np.mean(np.array(loss_train))
-        print("epoch: [%d/%d] , train_loss: %f" % (idx, 49, loss_train))
+        print("epoch: [%d/%d] , train_loss: %f" % (idx+1, 500, loss_train))
 
         net.eval()
         loss_val = []
@@ -62,7 +62,7 @@ def train(args):
                 MSE_loss = criterion(r, s)
                 loss_val.append(MSE_loss.item())
         loss_val = np.mean(np.array(loss_val))
-        print("epoch: [%d/%d] , val_loss: %f" % (idx, 49, loss_val))
+        print("epoch: [%d/%d] , val_loss: %f" % (idx+1, 500, loss_val))
 
         logger.save_one_epoch(loss_train, loss_val)
 

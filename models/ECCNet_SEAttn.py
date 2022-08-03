@@ -81,32 +81,28 @@ class ResSEBlock(nn.Module):
 
 
 class PreAttn(nn.Module):
-    def __init__(self, N, G, K):
+    def __init__(self, K):
         super(PreAttn, self).__init__()
-        self.extractor = nn.Sequential(
-            nn.Conv1d(2, 256, 5, stride=1, padding=2),
-            nn.BatchNorm1d(256),
-            nn.ReLU(),
-            nn.Conv1d(256, 128, 3, stride=1, padding=1),
-            nn.BatchNorm1d(128),
-            nn.ReLU(),
-            nn.Conv1d(128, 64, 3, stride=1, padding=1),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Conv1d(64, 2, 3, stride=1, padding=1),
+        self.conv = nn.Sequential(
             nn.BatchNorm1d(2),
-        )
-        self.fc = nn.Sequential(
-            nn.Linear(2 * N * G, K*2),
             nn.ReLU(),
-            nn.Linear(K*2, K),
+            nn.Conv1d(2, K, 1),
+            nn.BatchNorm1d(K),
+            nn.ReLU(),
+            nn.Conv1d(K, K, 1),
         )
+        self.shortcut = nn.Sequential(
+            nn.BatchNorm1d(2),
+            nn.ReLU(),
+            nn.Conv1d(2, K, 1)
+        )
+        self.attention = SE(K)
 
-    def forward(self, r):
-        z1 = self.extractor(r)
-        z2 = self.fc(z1.view(r.shape[0], -1))
-        R = torch.einsum("bcl,bz->bczl", r, z2).view(r.shape[0], -1, r.shape[-1])
-        return R
+    def forward(self, x):
+        out1 = self.conv(x)
+        out2 = self.attention(out1)
+        out3 = self.shortcut(x)
+        return out2+out3
 
 
 class Encoder(nn.Module):
@@ -149,7 +145,7 @@ class Decoder(nn.Module):
         self.G = G
         self.K = K
         self.decoder = nn.Sequential(
-            nn.Conv1d(2*K, 256, 5, stride=1, padding=2),
+            nn.Conv1d(K, 256, 5, stride=1, padding=2),
             nn.BatchNorm1d(256),
             nn.ReLU(),
             ResSEBlock(256, 128, 10),
@@ -178,8 +174,8 @@ class Net(nn.Module):
         self.G = G
         self.modem_num = modem_num
         self.encoder = Encoder(N, G)
-        self.decoder = Decoder(N, G, K//2)
-        self.preattn = PreAttn(N, G, K//2)
+        self.decoder = Decoder(N, G, K)
+        self.preattn = PreAttn(K)
         self.quantization = Quantization(qua_bits)
 
         for m in self.modules():
