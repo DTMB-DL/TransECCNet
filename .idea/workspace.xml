@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c73bc133-ba23-41bc-8864-ebc6212585d2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/rebuild.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rebuild.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/ECCNet_BiAttn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/ECCNet_BiAttn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/TFECCNet_BiAttn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/TFECCNet_BiAttn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/TFECCNet_MAAttn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/TFECCNet_MAAttn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/TFECCNet_ResAttn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/TFECCNet_ResAttn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +75,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.think_var2_16QAM">
+  <component name="RunManager" selected="Python.system_main">
     <configuration name="system_cnn" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="rebuild" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -177,9 +168,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.system_main" />
         <item itemvalue="Python.train" />
         <item itemvalue="Python.think_var2_16QAM" />
-        <item itemvalue="Python.system_main" />
         <item itemvalue="Python.system_cnn" />
       </list>
     </recent_temporary>
@@ -263,14 +254,9 @@
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/train.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/train.py</url>
-          <line>64</line>
-          <option name="timeStamp" value="6" />
+          <url>file://$PROJECT_DIR$/tools/parse.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
