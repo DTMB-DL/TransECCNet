@@ -62,7 +62,6 @@ class OFDM_SIM():
         return torch.fft.fftshift(torch.fft.fft(OFDM_RX))
 
     def interpolate_compensation(self, H_hat):
-        # 前面有空缺
         H_com = H_hat
         index_com = self.pilotCarriers
         if self.pilotCarriers[0] > 0:

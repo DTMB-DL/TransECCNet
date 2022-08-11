@@ -6,7 +6,7 @@ import numpy as np
 import math
 from traditional import *
 from .quantization import *
-__all__ =['Net']
+__all__ = ['Net']
 
 
 class TimeDistributed(nn.Module):

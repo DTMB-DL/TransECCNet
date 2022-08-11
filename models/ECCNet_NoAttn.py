@@ -6,7 +6,7 @@ import numpy as np
 import math
 from traditional import *
 from .quantization import *
-__all__ =['Net']
+__all__ = ['Net']
 
 
 class TimeDistributed(nn.Module):
@@ -25,6 +25,7 @@ class TimeDistributed(nn.Module):
         else:
             y = y.view(-1, x.size(1), y.size(-1))  # (timesteps, samples, output_size)
         return y
+
 
 class SE(nn.Module):
     def __init__(self, Cin):

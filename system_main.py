@@ -19,7 +19,7 @@ def baseline(args, bers, mode):
     modem, base, beta = get_modem(args.modem_num)
     B = bers.shape[0]
     BER = []
-    ofdm_sim = OFDM_SIM(K=64, CP=16, P=16, mu=int(np.log2(args.modem_num)), modem=modem, eng=eng)
+    ofdm_sim = OFDM_SIM(K=64, CP=16, P=32, mu=int(np.log2(args.modem_num)), modem=modem, eng=eng)
     L = ofdm_sim.K - ofdm_sim.P
 
     for snr in SNR:
