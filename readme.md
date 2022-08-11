@@ -45,12 +45,12 @@ home
 ## 3、Pipline
 ### A. Train Network
 
-Command:
+#### Command:
 ```
 python train.py -curve TFECCNet_SEAttn -channel channelB -snr 35.0 -qua_bits 1 -lr 1e-4 -modem_num 4
 ```
 
-Modifiable Parameters:
+#### Modifiable Parameters:
 * batch_size: batch size
 * G: G-fold symbold extension
 * N: Block of symbols
@@ -64,12 +64,12 @@ Modifiable Parameters:
 * channel: select the channel type
 
 ### B. BER measurement
-Command:
+#### Command:
 ```
 python system_main.py -curve TFECCNet_SEAttn -channel channelB -qua_bits 1 -ber_len 50 -modem_num 4 -snr_start 0 -snr_end 35 -snr_step 5
 ```
 
-Modifiable Parameters:
+#### Modifiable Parameters:
 * ber_len: ber_len × len is final testing length
 * batch_size: batch size
 * G: G-fold symbold extension
@@ -83,4 +83,5 @@ Modifiable Parameters:
 * curve: select the network type
 * channel: select the channel type
 
-Note: If $curve=='OFDM_LS/OFDM_MMSE/TFECCNet_general/ECCNet_general', the `qua_bits` will not take effect.
+#### Note: 
+If $curve=='OFDM_LS/OFDM_MMSE/TFECCNet_general/ECCNet_general', the `qua_bits` will not take effect.
