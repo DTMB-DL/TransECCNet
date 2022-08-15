@@ -42,8 +42,8 @@ def get_args():
         args.TDL_dB = [0, -8, -17, -21, -25]
         args.delay = [0, 3, 5, 6, 8]
     elif args.channel == 'channelB':
-        args.TDL_dB = [-10, -10, -17, -21, -25]
-        args.delay = [0, 3, 5, 6, 8]
+        args.TDL_dB = [0, 0, 0, 0, 0]
+        args.delay = [0, 1, 2, 3, 4]
     args.model_path = './data/'+args.channel+'/'+args.curve+'_'+str(args.modem_num)+'_'+str(args.qua_bits)+'.pth'
 
     return args

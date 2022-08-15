@@ -47,7 +47,7 @@ def baseline(args, bers, mode):
 
                 xx = torch.stack((OFDM_TX.real, OFDM_TX.imag), axis=0).reshape(2, 1, -1).to(device)
                 tx = pulse_shaping(xx, ISI=1, rate=5 * args.G, alpha=1)
-                [ry, sigma2] = channel(tx, snr + 10 * np.log10(L / (ofdm_sim.K + ofdm_sim.CP)) + 10 * np.log10(
+                [ry, sigma2] = channel(tx, snr + 10 * np.log10(ofdm_sim.K / (ofdm_sim.K + ofdm_sim.CP)) + 10 * np.log10(
                     np.log2(args.modem_num) / (tx.shape[2] / xx.shape[2]) / 3), rate=5 * args.G, H_r=H_r, H_i=H_i)
                 r = matched_filtering(ry, ISI=1, rate=5 * args.G, alpha=1)
                 z_L = r[0][0] + 1j * r[1][0]
