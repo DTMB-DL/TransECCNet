@@ -156,10 +156,11 @@ class Net(nn.Module):
     def __init__(self, N, G, K, modem_num, qua_bits):
         super(Net, self).__init__()
         self.G = G
+        self.qua_bits = qua_bits
         self.modem_num = modem_num
         self.encoder = Encoder(N, G)
         self.decoder = Decoder(N, G, K)
-        self.quantization = Quantization(qua_bits)
+        self.quantization = nn.Identity() if qua_bits == 0 else Quantization(qua_bits)
 
         for m in self.modules():
             if isinstance(m, (nn.Conv1d, nn.Linear)):
@@ -176,7 +177,7 @@ class Net(nn.Module):
         [ry, sigma2] = channel(tx, snr + 10 * math.log10(
             math.log2(self.modem_num) / (self.G * tx.shape[2] / xx.shape[2]) / 3), h_r, h_i, rate=5 * self.G)
         y = matched_filtering(ry, ISI=self.G, rate=5 * self.G, alpha=1)
-        r = self.quantization(y, mode, ac_T)
+        r = self.quantization(y) if self.qua_bits == 0 else self.quantization(y, mode, ac_T)
         r = torch.cat((r[0], r[1]), 1).reshape(x.shape[0], 2, -1)
 
         R = r
