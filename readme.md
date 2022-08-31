@@ -58,7 +58,7 @@ python train.py -curve TFECCNet_SEAttn -channel channelB -snr 35.0 -qua_bits 1 -
 * modem_num: modulation order (4 for QPSK, and 16 for 16QAM)
 * unit_T: unit increment of soft quantization
 * lr: learning rate of Autoencoder
-* qua_bits: quantization bits
+* qua_bits: quantization bits. 0 for unquantization.
 * snr: Eb/n0 when training
 * curve: select the network type
 * channel: select the channel type
@@ -76,7 +76,7 @@ python system_main.py -curve TFECCNet_SEAttn -channel channelB -qua_bits 1 -ber_
 * N: Block of symbols
 * K: preamplification dimensions
 * modem_num: modulation order (4 for QPSK, and 16 for 16QAM)
-* qua_bits: quantization bits
+* qua_bits: quantization bits. 0 for unquantization.
 * snr_start: start of Eb/n0 when testing
 * snr_step: step of Eb/n0 when testing
 * snr_end: end of Eb/n0 when testing
@@ -84,4 +84,4 @@ python system_main.py -curve TFECCNet_SEAttn -channel channelB -qua_bits 1 -ber_
 * channel: select the channel type
 
 #### Note: 
-If $curve=='OFDM_LS/OFDM_MMSE/TFECCNet_general/ECCNet_general', the `qua_bits` will not take effect.
+If $curve=='OFDM_LS/OFDM_MMSE', the `qua_bits` will not take effect.
