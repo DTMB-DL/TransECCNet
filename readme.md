@@ -1,5 +1,5 @@
 # README
-This is the implementation of paper “Deep Learning based Pilot-free Transmission: Error Correction Coding for Low-resolution Reception under Time-varying Channels”.
+This is the implementation of paper “Deep Learning Based Pilot-free Transmission: Error Correction Coding for Low-resolution Reception under Time-varying Channels”.
 
 ## 1、Requirements
 This project involves the joint programming of `MATLAB` and `Python`, and thus package `matlab.engine` is need for
